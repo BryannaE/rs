@@ -421,6 +421,9 @@ async def get_course_settings(
         "show_points": course_attrs.get("show_points") == "true",
         "groupsize": course_attrs.get("groupsize", "3"),
         "enable_async_llm_modes": course_attrs.get("enable_async_llm_modes", "false"),
+        "enable_async_llm_custom_prompts": course_attrs.get(
+            "enable_async_llm_custom_prompts", "false"
+        ),
     }
 
     return templates.TemplateResponse("admin/instructor/course_settings.html", context)

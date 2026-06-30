@@ -218,10 +218,22 @@ Course Settings
             <div class="settingsbox">
                 <div class="checkbox-container">
                     <input type="checkbox" id="async_llm_modes" {% if enable_async_llm_modes=="true" %}checked{% endif %}
-                        onchange="updateCourse(this,'enable_async_llm_modes')">
+                        onchange="updateAsyncLlmModes(this)">
                     <label for="async_llm_modes">Enable Async LLM Modes for Peer Instruction</label>
                 </div>
                 <div class="setting-description">Allow per-question LLM chat mode selection in asynchronous peer instruction activities</div>
+            </div>
+            
+            <div class="settingsbox" id="async_llm_custom_prompt_setting">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="async_llm_custom_prompts"
+                        {% if enable_async_llm_custom_prompts=="true" %}checked{% endif %}
+                        onchange="updateCourse(this,'enable_async_llm_custom_prompts')">
+                    <label for="async_llm_custom_prompts">Enable Custom LLM Prompts for Assignments</label>
+                </div>
+                <div class="setting-description">
+                    Allow instructors to add a custom LLM peer prompt from individual peer assignment settings.
+                </div>
             </div>
 
             <div class="settingsbox">
@@ -280,6 +292,24 @@ Course Settings
             showAlert('Error updating setting: ' + error.message, 'error');
         }
     }
+
+    async function updateAsyncLlmModes(element) {
+        await updateCourse(element, 'enable_async_llm_modes');
+            toggleCustomPromptSetting();
+        }
+
+    function toggleCustomPromptSetting() {
+        const asyncLlmCheckbox = document.getElementById('async_llm_modes');
+        const customPromptSetting = document.getElementById('async_llm_custom_prompt_setting');
+
+        if (!asyncLlmCheckbox || !customPromptSetting) {
+            return;
+        }
+
+        customPromptSetting.style.display = asyncLlmCheckbox.checked ? 'flex' : 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', toggleCustomPromptSetting);
 
     function showAlert(message, type) {
         const alertContainer = document.getElementById('alert-container');
