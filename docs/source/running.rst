@@ -13,6 +13,8 @@ Before running the setup script, you need:
 - **Docker Desktop** with Docker Compose 2.20.2 or later (current version: 2.38.2)
   
   - Download from https://docs.docker.com/compose/install/
+  - The Docker Desktop installer should match your machine (e.g., if you are on a Windows machine, download Docker Desktop for Windows).
+  - Sign in to Docker Desktop when prompted on first launch. Signing in keeps your file sharing path settings saved across restarts. If you skip sign-in, Docker may lose your shared folder configuration each time it closes.
   - Make sure Docker Desktop is running before starting the setup
   - For Windows: Enable WSL2 integration in Docker Desktop settings
   - **Important**: Configure file sharing in Docker Desktop (Settings → Resources → File Sharing) to include the directory where you'll create your Runestone configuration and your ``BOOK_PATH`` directory. Without this, Docker won't be able to access your book files.
@@ -24,7 +26,7 @@ Before running the setup script, you need:
 
 - **bash** (Linux and macOS have this by default, but...)
 
-  - The script uses features of bash introduced in version 5.0 so make sure you have a compatible version (Linux typically has this, macOS may require installing a newer version via Homebrew)
+  - The script uses features of bash introduced in version 5.0 so make sure you have a compatible version (Linux typically has this, macOS may require installing a newer version via `Homebrew <https://brew.sh>`_)
 
 **Optional:**
 
@@ -146,7 +148,7 @@ If you prefer to update manually (note this does **not** refresh
 
    docker compose pull
    docker compose run --rm rsmanage check-db-migrations.sh
-   docker compose stop. # or use down IF you run you DB outside of Docker
+   docker compose stop # or use down IF you run you DB outside of Docker
    docker compose up -d
 
 If database migrations are required, the ``check-db-migrations.sh`` script will prompt you to run them.
@@ -165,7 +167,7 @@ For database issues, you can reset the database by running ``docker compose down
 Developer Setup (From Cloned Repository)
 -----------------------------------------
 
-If you're contributing to Runestone development or want the source code locally, clone the repository first:
+If you're planning to contribute to Runestone development or want the source code locally, you need to fork the repository before you clone the repository: 
 
 .. code-block:: bash
 

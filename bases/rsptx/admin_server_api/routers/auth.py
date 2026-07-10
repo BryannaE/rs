@@ -1,4 +1,5 @@
 import datetime
+import re
 from datetime import timedelta
 
 from fastapi import APIRouter, Form, Request, status
@@ -63,6 +64,24 @@ def _user_exists(user) -> bool:
     return bool(user and user.id)
 
 
+# Usernames may be a plain handle or an email address. Allow letters, digits,
+# underscore, and the characters that appear in email addresses (@ . - + %).
+# Spaces and other special characters are rejected.
+_USERNAME_RE = re.compile(r"^[A-Za-z0-9._@+%-]+$")
+
+
+def _validate_username(username: str) -> str | None:
+    """Return an error message if the username is invalid, else None."""
+    if not username:
+        return "Username is required."
+    if not _USERNAME_RE.match(username):
+        return (
+            "Username may only contain letters, digits, and the characters "
+            "@ . _ - + % (no spaces). An email address is allowed."
+        )
+    return None
+
+
 async def _current_user(request: Request):
     """Return the authenticated user or None (never raises)."""
     try:
@@ -91,6 +110,17 @@ async def _navbar_context(user: AuthUserValidator) -> dict:
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, next: str = "/ns/course/index"):
+    # If a valid JWT is already present the user is logged in; send them
+    # straight to the course home page rather than showing the login form.
+    user = await _current_user(request)
+    if _user_exists(user):
+        # if the user is in a state where they don't have any courses yet send them to choose one
+        if user.course_id == 0:
+            return RedirectResponse(
+                "/admin/auth/courses", status_code=status.HTTP_302_FOUND
+            )
+        return RedirectResponse("/ns/course/index", status_code=status.HTTP_302_FOUND)
+
     return templates.TemplateResponse(
         "admin/auth/login.html",
         {"request": request, "next": next, "error": None},
@@ -119,8 +149,14 @@ async def login_post(
     access_token = auth_manager.create_access_token(
         data={"sub": user.username}, expires=timedelta(days=105)
     )
-    response = RedirectResponse(next, status_code=status.HTTP_302_FOUND)
+    if user.course_id == 0:
+        response = RedirectResponse(
+            "/admin/auth/courses", status_code=status.HTTP_302_FOUND
+        )
+    else:
+        response = RedirectResponse(next, status_code=status.HTTP_302_FOUND)
     auth_manager.set_cookie(response, access_token)
+    rslogger.info(f"LOGIN: {username}")
     return response
 
 
@@ -162,6 +198,11 @@ async def register_post(
     instructor: str = Form(default=""),
 ):
     errors = []
+
+    username = username.strip()
+    username_error = _validate_username(username)
+    if username_error:
+        errors.append(username_error)
 
     if password != password2:
         errors.append("Passwords do not match.")
@@ -261,6 +302,9 @@ async def register_post(
 
     response = RedirectResponse(redirect_to, status_code=status.HTTP_302_FOUND)
     auth_manager.set_cookie(response, access_token)
+    rslogger.info(
+        f"REGISTER: {username} (instructor={is_instructor}, institution='{institution}')"
+    )
     return response
 
 
@@ -714,6 +758,7 @@ async def reset_password_post(
         )
 
     await update_user(user.id, {"password": password})
+    rslogger.info(f"RESET PASSWORD: {user.username}")
     return RedirectResponse(
         f"{_LOGIN}?next=/ns/course/index", status_code=status.HTTP_302_FOUND
     )

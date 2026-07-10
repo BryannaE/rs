@@ -44,6 +44,19 @@
 		@ads path /ads.txt
 		rewrite @ads /runestone/static/ads.txt
 
+		# Serve the security contact file (RFC 9116) from staticAssets.
+		# rewrite ^/.well-known/security.txt$ /staticAssets/.well-known/security.txt
+		@securitytxt path /.well-known/security.txt
+		rewrite @securitytxt /staticAssets/.well-known/security.txt
+
+		# Global Privacy Control signal (https://globalprivacycontrol.github.io/gpc-spec/).
+		@gpc path /.well-known/gpc.json
+		rewrite @gpc /staticAssets/.well-known/gpc.json
+
+		# Well-known change-password URL: deep-links password managers to the change page.
+		@changepw path /.well-known/change-password
+		redir @changepw /admin/auth/forgot-password 302
+
 		# rewrite ^/runestone/static/JavaReview/(\w+)/(.*)$ /ns/books/published/apcsareview/$1/$2;
 		@javareview path_regexp jr ^/runestone/static/JavaReview/(\w+)/(.*)$
 		rewrite @javareview /ns/books/published/apcsareview/{re.jr.1}/{re.jr.2}
@@ -127,6 +140,19 @@
 		handle /author/* {
 			reverse_proxy author:8114 {
 				header_up X-Forwarded-Proto https
+			}
+		}
+
+		# ----- LTI 1.1 launch -> admin server -----
+		# Historically /runestone/lti was served by web2py; it now lives on the
+		# admin server at /lti1p1. Keep the public URL stable so existing LMS
+		# configurations keep working. X-Original-URI carries the URL the LMS
+		# signed so the OAuth signature can be verified after the rewrite.
+		handle /runestone/lti* {
+			rewrite * /lti1p1
+			reverse_proxy admin:8115 {
+				header_up X-Forwarded-Proto https
+				header_up X-Original-URI {http.request.orig_uri}
 			}
 		}
 

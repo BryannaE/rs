@@ -950,7 +950,7 @@ async function handlePageSetup() {
         let aw = document.getElementById("ad_warning");
         if (aw) {
             aw.innerHTML =
-                "<p class='navbar_message'>🚫 Log-in to Remove <a href='/runestone/default/ads'>Ads!</a> 🚫 &nbsp;</p>";
+                "<p class='navbar_message'>🚫 Log-in to Remove <a href='/admin/legal/ads'>Ads!</a> 🚫 &nbsp;</p>";
         }
     }
     document.querySelectorAll(".loggedinuser").forEach((el) => {
@@ -1156,7 +1156,7 @@ window.addEventListener("DOMContentLoaded", function (event) {
 
     menuContentArea.appendChild(makeLink("/ns/course/index", "Course Home", "home"));
     menuContentArea.appendChild(
-        makeLink("/runestone/assignments/chooseAssignment", "Assignments", "edit"),
+        makeLink("/assignment/student/chooseAssignment", "Assignments", "edit"),
     );
     menuContentArea.appendChild(
         makeLink("/assignment/peer/student", "Peer Instruction (Student)", "groups_3"),

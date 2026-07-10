@@ -346,7 +346,9 @@ def ack():
 
 
 def start():
-    return dict()
+    # The Getting Started page was migrated to the admin server and is now
+    # served at /admin/get-started.  Redirect old links/bookmarks there.
+    redirect("/admin/get-started")
 
 
 @auth.requires_login()
@@ -621,28 +623,8 @@ def sendreport():
     redirect("/%s/default/" % request.application)
 
 
-def terms():
-    return dict(terms={})
-
-
-def privacy():
-    return dict(private={})
-
-
-def wisp():
-    return dict(wisp={})
-
-
-def ads():
-    return dict(wisp={})
-
-
-def ct_addendum():
-    return dict(private={})
-
-
-def ca_addendum():
-    return dict(private={})
+# The terms, privacy, wisp, ads, ct_addendum, and ca_addendum legal pages were
+# migrated to the admin server and are now served at /admin/legal/*.
 
 
 def donate():
