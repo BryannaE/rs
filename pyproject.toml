@@ -2,7 +2,7 @@
 # Uses UV not Poetry -- conversion to uv in June 2026
 [project]
 name = "rs"
-version = "8.9.2"
+version = "8.9.3"
 description = ""
 authors = [{ name = "Brad Miller", email = "bonelake@mac.com" }]
 requires-python = ">=3.13,<4"
@@ -39,6 +39,7 @@ dependencies = [
     "Jinja2>=3.0.0,<4",
     "jwcrypto>=1.5.6,<2",
     "lxml>=6.0,<7",
+    "mistune>=3.0,<4",
     "multi-await>=1.0.4,<2",
     "numpy>= 1.9.2",
     "oauth2>=1.9",
